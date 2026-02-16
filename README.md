@@ -1,0 +1,79 @@
+# expo-toast
+
+Native-feeling liquid-glass toast notifications for Expo with an iOS-native presenter.
+
+## V1 scope
+
+- iOS 26+ runtime support
+- Imperative API (`toast.show`, `toast.success`, ...)
+- Preset variants: `success | error | info | loading`
+- One visible toast + FIFO queue
+- Default position: `top`
+- Default size: `fill-width` (`size: 'fit-content'` also supported)
+- Default duration: `3000ms`
+- Swipe-up dismiss + one optional action
+- Unsupported platforms: no-op + one dev warning
+
+## Install
+
+```bash
+bun add expo-toast
+```
+
+## API
+
+```ts
+import { toast } from 'expo-toast';
+
+toast.success('Saved');
+
+const id = toast.loading('Syncing...');
+toast.dismiss(id);
+```
+
+### Methods
+
+- `toast.show(options): ToastId`
+- `toast.success(message, options?)`
+- `toast.error(message, options?)`
+- `toast.info(message, options?)`
+- `toast.loading(message, options?)`
+- `toast.dismiss(id?)`
+- `toast.dismissAll()`
+- `toast.isSupported(): boolean`
+
+## Build module
+
+```bash
+bun install
+bun run build
+```
+
+## Run example app (uses local module)
+
+```bash
+cd example
+bun install
+bun run prebuild
+bun run ios
+```
+
+`bun run ios` uses `expo run:ios --device` and targets your connected iPhone.
+
+For JS-only iteration:
+
+```bash
+bun run start
+```
+
+## Repository scripts
+
+- `bun run build` builds module typings + JS output
+- `bun run lint` runs Biome lint checks
+- `bun run format` formats code with Biome
+- `bun run format:check` checks formatting with Biome
+- `bun run lint:expo` runs Expo module lint checks
+- `bun run example:start` starts the example app
+- `bun run example:prebuild` prebuilds the example native projects
+- `bun run example:ios` runs the example on a connected iPhone (`--device`)
+- `bun run example:device` alias for the same device command

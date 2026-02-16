@@ -1,0 +1,61 @@
+{
+  "name": "expo-toast",
+  "version": "0.1.0",
+  "description": "Native-feeling liquid-glass toast notifications for Expo (iOS 26+)",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "source": "src/index.ts",
+  "files": [
+    "build",
+    "ios",
+    "src",
+    "expo-module.config.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "expo-module build",
+    "clean": "expo-module clean",
+    "lint": "biome check .",
+    "lint:expo": "expo-module lint",
+    "format": "biome format . --write",
+    "format:check": "biome format .",
+    "test": "expo-module test",
+    "test:unit": "vitest run",
+    "prepare": "expo-module prepare",
+    "prepublishOnly": "expo-module prepublishOnly",
+    "expo-module": "expo-module",
+    "example:start": "cd example && bun run start",
+    "example:ios": "cd example && bun run ios",
+    "example:device": "cd example && bun run ios",
+    "example:prebuild": "cd example && bunx expo prebuild",
+    "open:ios": "xed example/ios"
+  },
+  "keywords": [
+    "react-native",
+    "expo",
+    "toast",
+    "ios"
+  ],
+  "repository": "https://github.com/lucaleukert/expo-toast",
+  "bugs": {
+    "url": "https://github.com/lucaleukert/expo-toast/issues"
+  },
+  "author": "Luca Leukert",
+  "license": "MIT",
+  "homepage": "https://github.com/lucaleukert/expo-toast#readme",
+  "dependencies": {},
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.0",
+    "@types/react": "~19.1.0",
+    "expo": "^54.0.33",
+    "expo-module-scripts": "^5.0.8",
+    "react-native": "0.81.5",
+    "typescript": "~5.9.2",
+    "vitest": "^2.1.9"
+  },
+  "peerDependencies": {
+    "expo": "*",
+    "react": "*",
+    "react-native": "*"
+  }
+}

@@ -1,0 +1,21 @@
+# macOS
+.DS_Store
+
+# Node
+node_modules/
+*.log
+
+# Build outputs
+build/
+coverage/
+
+# Expo
+.expo/
+.expo-shared/
+
+# iOS / Android artifacts
+DerivedData/
+*.xcuserstate
+example/ios/Pods/
+example/android/.gradle/
+example/android/app/build/
