@@ -45,5 +45,13 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Prepare tokenless npm auth (Trusted Publishing)
+        run: |
+          rm -f ~/.npmrc .npmrc
+          npm config set registry https://registry.npmjs.org/
+
       - name: Publish to npm
+        env:
+          NODE_AUTH_TOKEN: ''
+          NPM_TOKEN: ''
         run: npm publish --provenance --access public
