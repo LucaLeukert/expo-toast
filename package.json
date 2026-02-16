@@ -34,7 +34,7 @@
     "example:start": "cd example && bun run start",
     "example:ios": "cd example && bun run ios",
     "example:device": "cd example && bun run ios",
-    "example:prebuild": "cd example && bunx expo prebuild",
+    "example:prebuild": "cd example && bunx expo prebuild --platform ios",
     "open:ios": "xed example/ios"
   },
   "keywords": [

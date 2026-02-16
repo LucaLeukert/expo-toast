@@ -10,8 +10,6 @@
       "supportsTablet": true,
       "bundleIdentifier": "dev.expo.toast.example"
     },
-    "android": {
-      "package": "dev.expo.toast.example"
-    }
+    "platforms": ["ios"]
   }
 }

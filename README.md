@@ -21,8 +21,25 @@ Native-feeling liquid-glass toast notifications for Expo with an iOS-native pres
 
 ## Install
 
+Install the package in your Expo app:
+
 ```bash
-bun add expo-toast
+npx expo install @lucaleukert/expo-toast
+```
+
+If you use Bun directly:
+
+```bash
+bun add @lucaleukert/expo-toast
+```
+
+`expo-toast` currently ships an iOS-native presenter. Android and web are safe no-op runtimes.
+
+After installing, regenerate iOS native files and rebuild your dev client/app:
+
+```bash
+npx expo prebuild --platform ios
+npx expo run:ios --device
 ```
 
 ## Documentation
@@ -123,6 +140,6 @@ bun run start
 - `bun run format:check` checks formatting with Biome
 - `bun run lint:expo` runs Expo module lint checks
 - `bun run example:start` starts the example app
-- `bun run example:prebuild` prebuilds the example native projects
+- `bun run example:prebuild` prebuilds the example iOS native project
 - `bun run example:ios` runs the example on a connected iPhone (`--device`)
 - `bun run example:device` alias for the same device command

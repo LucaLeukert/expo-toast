@@ -6,9 +6,8 @@
   "scripts": {
     "start": "expo start",
     "ios": "expo run:ios --device",
-    "android": "expo run:android",
     "web": "expo start --web",
-    "prebuild": "expo prebuild"
+    "prebuild": "expo prebuild --platform ios"
   },
   "dependencies": {
     "expo": "~54.0.33",
