@@ -71,14 +71,14 @@ final class ToastView: UIView {
   }
 
   func transition(to payload: ToastPayload) {
-    layoutIfNeeded()
-    let previousSnapshot = hostingController?.view.snapshotView(afterScreenUpdates: true)
-    configure(with: payload)
-    layoutIfNeeded()
-
     guard let contentView = hostingController?.view else {
       return
     }
+
+    layoutIfNeeded()
+    let previousSnapshot = contentView.snapshotView(afterScreenUpdates: false)
+    configure(with: payload)
+    layoutIfNeeded()
 
     if let previousSnapshot {
       previousSnapshot.frame = bounds
@@ -88,32 +88,20 @@ final class ToastView: UIView {
     }
 
     contentView.alpha = 0
-    contentView.transform = CGAffineTransform(scaleX: 0.965, y: 0.965)
+    contentView.transform = CGAffineTransform(scaleX: 0.98, y: 0.98)
     previousSnapshot?.alpha = 1
     previousSnapshot?.transform = .identity
 
-    // Two-stage morph: soften the swap first, then spring-settle.
-    UIView.animate(withDuration: 0.14, delay: 0, options: [.curveEaseOut, .allowUserInteraction]) {
-      contentView.alpha = 0.52
-      contentView.transform = CGAffineTransform(scaleX: 0.985, y: 0.985)
-      previousSnapshot?.alpha = 0.55
-      previousSnapshot?.transform = CGAffineTransform(scaleX: 1.015, y: 1.015)
-    } completion: { _ in
-      UIView.animate(
-        withDuration: 0.3,
-        delay: 0,
-        usingSpringWithDamping: 0.86,
-        initialSpringVelocity: 0.15,
-        options: [.curveEaseOut, .allowUserInteraction]
-      ) {
-        contentView.alpha = 1
-        contentView.transform = .identity
-        previousSnapshot?.alpha = 0
-        previousSnapshot?.transform = CGAffineTransform(scaleX: 1.03, y: 1.03)
-      } completion: { _ in
-        previousSnapshot?.removeFromSuperview()
-      }
+    let animator = UIViewPropertyAnimator(duration: 0.28, dampingRatio: 0.92) {
+      contentView.alpha = 1
+      contentView.transform = .identity
+      previousSnapshot?.alpha = 0
+      previousSnapshot?.transform = CGAffineTransform(scaleX: 1.008, y: 1.008)
     }
+    animator.addCompletion { _ in
+      previousSnapshot?.removeFromSuperview()
+    }
+    animator.startAnimation()
   }
 }
 
