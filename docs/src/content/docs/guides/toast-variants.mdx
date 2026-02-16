@@ -1,0 +1,47 @@
+---
+title: Toast Variants
+description: Choose the right toast style and lifecycle for each situation.
+slug: guides/toast-variants
+---
+
+## `success`
+
+Use for completed actions and positive outcomes.
+
+```ts
+toast.success('Changes saved');
+```
+
+## `error`
+
+Use for failures that need user awareness.
+
+```ts
+toast.error('Could not save changes');
+```
+
+## `info`
+
+Use for neutral updates and status messages.
+
+```ts
+toast.info('Sync started in background');
+```
+
+## `loading`
+
+Use for long-running actions. Loading toasts default to infinite duration until transitioned or dismissed.
+
+```ts
+const id = toast.loading('Importing contacts...');
+
+// Later
+toast.update(id, { variant: 'success', message: 'Import complete', duration: 'short' });
+```
+
+## Variant selection rules of thumb
+
+- Prefer `success` for finished, user-triggered operations.
+- Prefer `error` for operations that failed and may need follow-up.
+- Prefer `info` for passive state changes.
+- Prefer `loading` when you expect a later completion state.

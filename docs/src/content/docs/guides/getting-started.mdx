@@ -1,0 +1,68 @@
+---
+title: Getting Started
+description: Install expo-toast and show your first toasts.
+slug: guides/getting-started
+---
+
+## Install
+
+```bash
+bun add expo-toast
+```
+
+## Import the API
+
+```ts
+import { toast } from 'expo-toast';
+```
+
+## Show your first toast
+
+```ts
+toast.success('Profile saved');
+```
+
+## Typical flow: loading -> success/error
+
+```ts
+const id = toast.loading('Saving profile...');
+
+try {
+  await saveProfile();
+  toast.update(id, {
+    variant: 'success',
+    message: 'Profile saved',
+    duration: 'short',
+  });
+} catch (error) {
+  toast.update(id, {
+    variant: 'error',
+    message: `Save failed: ${String(error)}`,
+    duration: 'long',
+  });
+}
+```
+
+## Promise helper
+
+```ts
+await toast.promise(saveProfile(), {
+  loading: 'Saving profile...',
+  success: 'Profile saved',
+  error: (err) => `Save failed: ${String(err)}`,
+});
+```
+
+## Check runtime support (optional)
+
+You can call the API unconditionally, but if you want custom fallback UI:
+
+```ts
+if (!toast.isSupported()) {
+  // Show alternate UI for unsupported runtimes.
+}
+```
+
+## Next step
+
+Continue with [Using the Toast Module](/guides/using-toast-module).

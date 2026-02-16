@@ -1,0 +1,59 @@
+---
+title: Configuration
+description: Configure defaults, queueing, dedupe, motion, and accessibility.
+slug: guides/configuration
+---
+
+Use `toast.configure` to set global defaults for all future toasts.
+
+```ts
+toast.configure({
+  position: 'top',
+  size: 'fit-content',
+  duration: 3000,
+  haptics: true,
+  motion: 'system',
+  announce: true,
+  importance: 'normal',
+  dedupeWindowMs: 1200,
+  maxVisible: 3,
+  maxQueue: 20,
+  dropPolicy: 'oldest',
+});
+```
+
+## Queue controls
+
+- `maxVisible`: visible toasts at once per edge (`top` and `bottom` are independent)
+- `maxQueue`: pending toasts per edge
+- `dropPolicy`:
+  - `oldest`: drop oldest pending toast when queue is full
+  - `newest`: drop the newly requested toast when queue is full
+
+## Dedupe
+
+Set `dedupeWindowMs` to prevent repeat toasts for the same key in a time window.
+
+```ts
+toast.configure({ dedupeWindowMs: 1500 });
+
+toast.show({ message: 'No internet connection', dedupeKey: 'network-offline' });
+```
+
+## Accessibility
+
+- `accessibilityLabel`: custom spoken label for assistive technologies
+- `announce`: whether toast should trigger an accessibility announcement
+- `importance`: `'low' | 'normal' | 'high'`
+
+Low-importance toasts default to non-announcing unless explicitly overridden.
+
+## Motion
+
+- `system`: follow OS reduce-motion setting
+- `full`: always use full animation
+- `minimal`: always use reduced motion
+
+## Per-toast override
+
+Any `toast.show` or `toast.update` call can override global defaults.

@@ -1,39 +1,39 @@
 ---
-title: API Reference
-description: API overview for the `toast` object and generated JSDoc reference.
+title: API Overview
+description: High-level map of the public API before diving into the full reference.
 slug: guides/api
 ---
 
-## API overview
+## Primary export
 
-- `toast.show(options): ToastId`
+```ts
+import { toast } from 'expo-toast';
+```
+
+## Show toasts
+
+- `toast.show(options)` for full control
 - `toast.success(message, options?)`
 - `toast.error(message, options?)`
 - `toast.info(message, options?)`
 - `toast.loading(message, options?)`
+
+## Update and dismiss
+
 - `toast.transition(id, options)`
-- `toast.update(id, options)`
-- `toast.promise(promise, messages, options?)`
-- `toast.configure(config)`
+- `toast.update(id, options)` (alias)
 - `toast.dismiss(id?)`
 - `toast.dismissAll()`
-- `toast.isSupported(): boolean`
 
-## Generated JSDoc reference
+## Promise lifecycle
 
-The canonical API documentation is generated directly from source JSDoc comments:
+- `toast.promise(work, messages, options?)`
 
-- [`/reference/api`](/reference/api)
+## Global config
 
-## Queue options
+- `toast.configure(config)`
+- `toast.isSupported()`
 
-- `maxVisible`: visible toast count per edge
-- `maxQueue`: pending toast count per edge
-- `dropPolicy`: `'oldest' | 'newest'` when pending queue is full
+## Full reference
 
-## Accessibility and motion
-
-- `accessibilityLabel?: string`
-- `announce?: boolean`
-- `importance?: 'low' | 'normal' | 'high'`
-- `motion?: 'system' | 'full' | 'minimal'`
+See [API Reference](/reference/api) for complete function/type-level documentation.

@@ -21,20 +21,23 @@ export default defineConfig({
         {
           label: 'Getting Started',
           items: [
-            { label: 'Overview', slug: '' },
-            { label: 'Quick Start', slug: 'guides/quick-start' },
+            { label: 'Introduction', slug: '' },
+            { label: 'Getting Started', slug: 'guides/getting-started' },
           ],
         },
         {
-          label: 'API',
+          label: 'Guides',
           items: [
+            { label: 'Using the Toast Module', slug: 'guides/using-toast-module' },
+            { label: 'Toast Variants', slug: 'guides/toast-variants' },
+            { label: 'Configuration', slug: 'guides/configuration' },
             { label: 'API Overview', slug: 'guides/api' },
-            { label: 'API (JSDoc)', slug: 'reference/api' },
           ],
         },
         {
           label: 'Reference',
           items: [
+            { label: 'API Reference', slug: 'reference/api' },
             { label: 'README', slug: 'reference/readme' },
             { label: 'Changelog', slug: 'reference/changelog' },
           ],

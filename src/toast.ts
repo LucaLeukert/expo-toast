@@ -94,6 +94,9 @@ const config: ToastRuntimeConfig = {
 
 /**
  * Parses an iOS runtime version into its major integer.
+ *
+ * Accepts either a numeric version (`17`) or dotted string (`17.4.1`).
+ * Invalid values resolve to `0`.
  */
 export function parseIOSMajorVersion(version: string | number): number {
   if (typeof version === 'number') {
@@ -106,15 +109,24 @@ export function parseIOSMajorVersion(version: string | number): number {
 
 /**
  * Returns whether the provided runtime tuple is eligible for native toast support checks.
+ *
+ * This is exported for testability and future-proof runtime gating logic. The
+ * current v1 implementation supports iOS only.
  */
 export function runtimeSupportsToastFor(os: string, _version: string | number): boolean {
   return os === 'ios';
 }
 
+/**
+ * Computes support eligibility for the current JS runtime environment.
+ */
 function runtimeSupportsToast(): boolean {
   return runtimeSupportsToastFor(Platform.OS, Platform.Version);
 }
 
+/**
+ * Logs a single development warning for unsupported runtimes.
+ */
 function warnUnsupportedOnce(): void {
   if (!__DEV__ || hasWarnedUnsupported) {
     return;
@@ -125,6 +137,12 @@ function warnUnsupportedOnce(): void {
   );
 }
 
+/**
+ * Normalizes queue limit values.
+ *
+ * Non-finite values fall back to defaults, then values are rounded and clamped
+ * to the provided minimum.
+ */
 function normalizeQueueLimit(
   value: number | undefined,
   fallback: number,
@@ -136,10 +154,18 @@ function normalizeQueueLimit(
   return Math.max(minValue, Math.round(value));
 }
 
+/**
+ * Serializes active queue config into a stable cache key.
+ */
 function queueSignature(): string {
   return `${config.maxVisible}:${config.maxQueue}:${config.dropPolicy}`;
 }
 
+/**
+ * Initializes runtime-only listeners and capabilities once per JS session.
+ *
+ * This currently wires OS reduce-motion tracking into local runtime state.
+ */
 function ensureRuntime(): void {
   if (runtimeInitialized) {
     return;
@@ -166,6 +192,9 @@ function ensureRuntime(): void {
   });
 }
 
+/**
+ * Removes stale dedupe entries and enforces bounded map size.
+ */
 function pruneDedupeMap(now: number, windowMs: number): void {
   if (windowMs <= 0) {
     recentDedupe.clear();
@@ -187,6 +216,10 @@ function pruneDedupeMap(now: number, windowMs: number): void {
   }
 }
 
+/**
+ * Attaches native event listeners exactly once and routes events to per-toast
+ * callback entries.
+ */
 function ensureListeners(): void {
   if (listenersInitialized) {
     return;
@@ -233,6 +266,9 @@ function ensureListeners(): void {
   });
 }
 
+/**
+ * Generates a unique toast id for calls that do not provide one explicitly.
+ */
 function nextToastId(): ToastId {
   idCounter += 1;
   return `toast_${Date.now()}_${idCounter}`;
@@ -240,6 +276,13 @@ function nextToastId(): ToastId {
 
 /**
  * Normalizes toast duration presets into milliseconds.
+ *
+ * - `undefined` => `3000ms`, except loading toasts which default to infinite.
+ * - `short` => `2000ms`
+ * - `long` => `4500ms`
+ * - `infinite` => `-1` (native no-timeout sentinel)
+ *
+ * Numeric values are rounded and clamped to `>= 0`.
  */
 export function normalizeDuration(
   duration: ToastDuration | undefined,
@@ -260,6 +303,9 @@ export function normalizeDuration(
   return INFINITE_MS;
 }
 
+/**
+ * Resolves whether reduced-motion native transitions should be requested.
+ */
 function isReducedMotionPreference(motion: ToastMotionPreference): boolean {
   if (motion === 'minimal') {
     return true;
@@ -270,6 +316,9 @@ function isReducedMotionPreference(motion: ToastMotionPreference): boolean {
   return reducedMotionEnabled;
 }
 
+/**
+ * Resolves full runtime support, including platform gate and linked native module.
+ */
 function isSupportedRuntime(): boolean {
   if (!runtimeSupportsToast()) {
     return false;
@@ -277,6 +326,9 @@ function isSupportedRuntime(): boolean {
   return ExpoToastModule.isSupported();
 }
 
+/**
+ * Pushes updated queue settings to native only when relevant values changed.
+ */
 function ensureQueueConfig(): void {
   const nextSignature = queueSignature();
   if (queueConfigSignature === nextSignature) {
@@ -290,6 +342,11 @@ function ensureQueueConfig(): void {
   });
 }
 
+/**
+ * Resolves final announcement behavior from toast-level and global defaults.
+ *
+ * Low-importance toasts default to no announcement unless explicitly overridden.
+ */
 function resolveAnnounce(importance: ToastImportance, announce: boolean | undefined): boolean {
   if (announce !== undefined) {
     return announce;
@@ -300,6 +357,10 @@ function resolveAnnounce(importance: ToastImportance, announce: boolean | undefi
   return config.announce;
 }
 
+/**
+ * Returns an existing toast id when dedupe is active and a matching key was
+ * recently shown; otherwise returns `null`.
+ */
 function dedupeFor(
   message: string,
   dedupeKey: string | undefined,
@@ -325,6 +386,11 @@ function dedupeFor(
   return null;
 }
 
+/**
+ * Creates and shows a new toast.
+ *
+ * On unsupported runtimes this is a safe no-op and still returns the resolved id.
+ */
 function show(options: ToastOptions): ToastId {
   ensureRuntime();
 
@@ -397,6 +463,11 @@ function show(options: ToastOptions): ToastId {
   return id;
 }
 
+/**
+ * Transitions an existing toast to new content/state.
+ *
+ * Keeps existing callbacks/metadata unless explicitly replaced in options.
+ */
 function transition(id: ToastId, options: ToastTransitionOptions): ToastId {
   ensureRuntime();
 
@@ -463,6 +534,9 @@ function transition(id: ToastId, options: ToastTransitionOptions): ToastId {
   return id;
 }
 
+/**
+ * Convenience wrapper to show a toast for a known variant.
+ */
 function withVariant(
   variant: ToastVariant,
   message: string,
@@ -475,6 +549,9 @@ function withVariant(
   });
 }
 
+/**
+ * Dismisses a toast by id, or all toasts when id is omitted.
+ */
 function dismiss(id?: ToastId): void {
   ensureRuntime();
 
@@ -489,6 +566,9 @@ function dismiss(id?: ToastId): void {
   ExpoToastModule.dismiss(id);
 }
 
+/**
+ * Dismisses all active and queued toasts.
+ */
 function dismissAll(): void {
   ensureRuntime();
 
@@ -501,11 +581,17 @@ function dismissAll(): void {
   ExpoToastModule.dismissAll();
 }
 
+/**
+ * Public support check for current runtime + module linkage.
+ */
 function isSupported(): boolean {
   ensureRuntime();
   return isSupportedRuntime();
 }
 
+/**
+ * Applies partial global config updates for subsequent toast operations.
+ */
 function configure(next: ToastConfig): void {
   ensureRuntime();
 
@@ -555,10 +641,19 @@ function configure(next: ToastConfig): void {
   ensureQueueConfig();
 }
 
+/**
+ * Alias for `transition`.
+ */
 function update(id: ToastId, options: ToastTransitionOptions): ToastId {
   return transition(id, options);
 }
 
+/**
+ * Binds toast lifecycle to a promise lifecycle.
+ *
+ * Shows a loading toast immediately, transitions to success on resolve, and
+ * transitions to error then rethrows on rejection.
+ */
 function promise<T>(
   work: Promise<T>,
   messages: ToastPromiseMessages<T>,
@@ -591,6 +686,9 @@ function promise<T>(
 
 /**
  * Imperative toast API for showing, updating, and dismissing toasts.
+ *
+ * This is the primary public surface of `expo-toast`. All methods are no-op
+ * safe on unsupported platforms and can be called unconditionally.
  */
 export const toast: ToastApi = {
   show,

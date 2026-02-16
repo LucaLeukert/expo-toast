@@ -1,26 +1,32 @@
 ---
-title: Overview
-description: Practical docs for integrating expo-toast quickly.
+title: Introduction
+description: What expo-toast is, when to use it, and how the docs are organized.
 ---
 
-`expo-toast` provides a typed toast API for Expo apps with an iOS-native presenter.
+`expo-toast` is an Expo module that gives you a native-feeling toast system with a simple TypeScript API.
 
-## Start here
+It is designed for production apps that need:
 
-- [Quick Start](/guides/quick-start) for installation and first usage.
-- [API Overview](/guides/api) for the key methods.
-- [API (JSDoc)](/reference/api) for full generated public API docs.
+- Fast feedback for user actions (`Saved`, `Upload failed`, `Copied`)
+- Consistent toast behavior across screens
+- Queueing, dedupe, and update-in-place flows
+- Accessibility-aware announcements and motion handling
 
-## What this docs site optimizes for
+## Runtime support
 
-- Fast navigation
-- Clear API behavior
-- Copy-pasteable examples
+- iOS native runtime: supported
+- Android and web: safe no-op API (`toast.isSupported()` returns `false`)
 
-## Source of truth
+## How to use these docs
 
-These pages are synced from repository source files:
+- [Getting Started](/guides/getting-started): install and first toast
+- [Using the Toast Module](/guides/using-toast-module): core API patterns
+- [Toast Variants](/guides/toast-variants): `success`, `error`, `info`, `loading`
+- [Configuration](/guides/configuration): defaults, queueing, dedupe, motion, accessibility
+- [API Reference](/reference/api): complete generated reference from JSDoc
 
-- `README.md`
-- `CHANGELOG.md`
-- public API JSDoc from `src/`
+## Design goals
+
+- API-first: call `toast` from anywhere in app logic
+- Predictable: global defaults + per-toast overrides
+- Safe by default: unsupported platforms do not crash

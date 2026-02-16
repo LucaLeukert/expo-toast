@@ -19,10 +19,6 @@ function ensureDir(filePath) {
   mkdirSync(dirname(filePath), { recursive: true });
 }
 
-function escaped(text) {
-  return text.replaceAll('|', '\\|').trim();
-}
-
 function docText(symbol, checker) {
   return ts.displayPartsToString(symbol.getDocumentationComment(checker)).trim();
 }
@@ -78,15 +74,21 @@ function renderTypeAliasSignature(declaration) {
   return `type ${declaration.name.getText()} = ${normalizedType}`;
 }
 
+function signatureBlock(signature) {
+  return ['```ts', signature, '```', ''];
+}
+
 function renderInterfaceMemberSignatures(declaration, checker) {
   const out = [];
   for (const member of declaration.members) {
     if (!member.name) {
       continue;
     }
+    const name = member.name.getText().replace(/\?$/, '');
     const signature = member.getText().replace(/\s+/g, ' ').trim();
     const docs = memberDoc(member, checker);
     out.push({
+      name,
       signature,
       docs,
     });
@@ -97,8 +99,8 @@ function renderInterfaceMemberSignatures(declaration, checker) {
 function renderMarkdown(api) {
   const lines = [
     '---',
-    'title: API (JSDoc)',
-    'description: Auto-generated from JSDoc comments in src/.',
+    'title: API Reference',
+    'description: Complete API reference generated from source JSDoc in src/.',
     'slug: reference/api',
     '---',
     '',
@@ -109,7 +111,8 @@ function renderMarkdown(api) {
   if (api.functions.length > 0) {
     lines.push('## Functions', '');
     for (const entry of api.functions) {
-      lines.push(`### \`${escaped(entry.signature)}\``, '');
+      lines.push(`### \`${entry.name}\``, '');
+      lines.push(...signatureBlock(entry.signature));
       lines.push(entry.docs || 'No documentation provided.', '');
     }
   }
@@ -117,7 +120,8 @@ function renderMarkdown(api) {
   if (api.variables.length > 0) {
     lines.push('## Objects', '');
     for (const entry of api.variables) {
-      lines.push(`### \`${escaped(entry.signature)}\``, '');
+      lines.push(`### \`${entry.name}\``, '');
+      lines.push(...signatureBlock(entry.signature));
       lines.push(entry.docs || 'No documentation provided.', '');
     }
   }
@@ -125,14 +129,16 @@ function renderMarkdown(api) {
   if (api.interfaces.length > 0) {
     lines.push('## Interfaces', '');
     for (const entry of api.interfaces) {
-      lines.push(`### \`${escaped(entry.signature)}\``, '');
+      lines.push(`### \`${entry.name}\``, '');
+      lines.push(...signatureBlock(entry.signature));
       lines.push(entry.docs || 'No documentation provided.', '');
       if (entry.members.length > 0) {
         lines.push('#### Members', '');
         for (const member of entry.members) {
-          lines.push(`- \`${escaped(member.signature)}\`${member.docs ? ` - ${member.docs}` : ''}`);
+          lines.push(`##### \`${member.name}\``, '');
+          lines.push(...signatureBlock(member.signature));
+          lines.push(member.docs || 'No documentation provided.', '');
         }
-        lines.push('');
       }
     }
   }
@@ -140,7 +146,8 @@ function renderMarkdown(api) {
   if (api.typeAliases.length > 0) {
     lines.push('## Type Aliases', '');
     for (const entry of api.typeAliases) {
-      lines.push(`### \`${escaped(entry.signature)}\``, '');
+      lines.push(`### \`${entry.name}\``, '');
+      lines.push(...signatureBlock(entry.signature));
       lines.push(entry.docs || 'No documentation provided.', '');
     }
   }
@@ -194,18 +201,21 @@ function main() {
     switch (declaration.kind) {
       case ts.SyntaxKind.FunctionDeclaration:
         api.functions.push({
+          name: symbol.getName(),
           signature: renderFunctionSignature(symbol, checker, declaration),
           docs,
         });
         break;
       case ts.SyntaxKind.VariableDeclaration:
         api.variables.push({
+          name: symbol.getName(),
           signature: renderVariableSignature(symbol, checker, declaration),
           docs,
         });
         break;
       case ts.SyntaxKind.InterfaceDeclaration:
         api.interfaces.push({
+          name: symbol.getName(),
           signature: `interface ${symbol.getName()}`,
           docs,
           members: renderInterfaceMemberSignatures(declaration, checker),
@@ -213,6 +223,7 @@ function main() {
         break;
       case ts.SyntaxKind.TypeAliasDeclaration:
         api.typeAliases.push({
+          name: symbol.getName(),
           signature: renderTypeAliasSignature(declaration),
           docs,
         });

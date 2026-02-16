@@ -1,0 +1,85 @@
+---
+title: Using the Toast Module
+description: Practical API patterns for showing, updating, and dismissing toasts.
+slug: guides/using-toast-module
+---
+
+## Core methods
+
+- `toast.show(options)`
+- `toast.success(message, options?)`
+- `toast.error(message, options?)`
+- `toast.info(message, options?)`
+- `toast.loading(message, options?)`
+- `toast.transition(id, options)` / `toast.update(id, options)`
+- `toast.dismiss(id?)` / `toast.dismissAll()`
+
+## `toast.show` for full control
+
+Use `toast.show` when you need complete control over behavior:
+
+```ts
+const id = toast.show({
+  variant: 'info',
+  title: 'Offline mode',
+  message: 'Changes are queued and will sync automatically.',
+  position: 'top',
+  duration: 'long',
+  action: {
+    label: 'Open queue',
+    onPress: () => {
+      // Navigate to pending changes.
+    },
+  },
+});
+```
+
+## Update an existing toast
+
+`toast.update` is an alias for `toast.transition`.
+
+```ts
+const id = toast.loading('Uploading image...');
+
+uploadImage(file)
+  .then(() => {
+    toast.update(id, {
+      variant: 'success',
+      message: 'Upload complete',
+      duration: 'short',
+    });
+  })
+  .catch((error) => {
+    toast.update(id, {
+      variant: 'error',
+      message: `Upload failed: ${String(error)}`,
+      duration: 'long',
+    });
+  });
+```
+
+## Dismiss behavior
+
+```ts
+const id = toast.info('Draft autosaved');
+
+toast.dismiss(id); // one toast
+toast.dismiss(); // equivalent to dismissAll
+```
+
+## Lifecycle callbacks
+
+```ts
+toast.show({
+  message: 'Session expired',
+  variant: 'error',
+  onShow: ({ id }) => {
+    console.log('toast shown', id);
+  },
+  onDismiss: ({ id, reason }) => {
+    console.log('toast dismissed', id, reason);
+  },
+});
+```
+
+For every option and event type, see [API Reference](/reference/api).
