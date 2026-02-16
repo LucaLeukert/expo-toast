@@ -43,10 +43,11 @@ describe('runtime support', () => {
     expect(parseIOSMajorVersion(26)).toBe(26);
   });
 
-  it('gates support to iOS 26+', async () => {
+  it('only allows iOS runtime tuple at JS gate', async () => {
     const { runtimeSupportsToastFor } = await loadToastModule();
     expect(runtimeSupportsToastFor('ios', '26.0')).toBe(true);
-    expect(runtimeSupportsToastFor('ios', '25.9')).toBe(false);
+    expect(runtimeSupportsToastFor('ios', '15.1')).toBe(true);
+    expect(runtimeSupportsToastFor('ios', '14.9')).toBe(true);
     expect(runtimeSupportsToastFor('android', 34)).toBe(false);
   });
 });

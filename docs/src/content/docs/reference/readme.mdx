@@ -8,7 +8,7 @@ Native-feeling liquid-glass toast notifications for Expo with an iOS-native pres
 
 ## V1 scope
 
-- iOS 26+ runtime support
+- iOS 15.1+ runtime support
 - Imperative API (`toast.show`, `toast.success`, ...)
 - Preset variants: `success | error | info | loading`
 - Up to three visible toasts per edge + FIFO queue
@@ -88,7 +88,7 @@ Use `toast.configure` to control queue behavior:
 
 - Expo SDK: tested on `54.x`
 - React Native: tested on `0.81.x`
-- iOS runtime: supported on `26+` (native presenter)
+- iOS runtime: supported on `15.1+` (native presenter; liquid-glass styling on iOS 26+)
 - Android/Web: API is safe no-op, `toast.isSupported()` returns `false`
 
 ## Build module

@@ -1,4 +1,4 @@
-import { toast } from 'expo-toast';
+import { toast } from '@lucaleukert/expo-toast';
 import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 

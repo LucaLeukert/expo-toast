@@ -28,7 +28,13 @@ let moduleInstance: ExpoToastModuleLike;
 
 try {
   moduleInstance = requireNativeModule<ExpoToastModuleLike>('ExpoToast');
-} catch {
+} catch (error) {
+  if (__DEV__) {
+    console.warn(
+      '[expo-toast] Native module "ExpoToast" failed to load. Rebuild your iOS app/dev client so the native module is linked.',
+      error,
+    );
+  }
   moduleInstance = {
     addListener: () => ({ remove: () => {} }),
     removeListener: () => {},

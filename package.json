@@ -1,5 +1,5 @@
 {
-  "name": "@derluleu/expo-toast",
+  "name": "@lucaleukert/expo-toast",
   "version": "0.1.1",
   "description": "Native-feeling liquid-glass toast notifications for Expo (iOS 26+)",
   "main": "build/index.js",

@@ -105,10 +105,10 @@ export function parseIOSMajorVersion(version: string | number): number {
 }
 
 /**
- * Returns whether the provided runtime tuple supports the native toast presenter.
+ * Returns whether the provided runtime tuple is eligible for native toast support checks.
  */
-export function runtimeSupportsToastFor(os: string, version: string | number): boolean {
-  return os === 'ios' && parseIOSMajorVersion(version) >= 26;
+export function runtimeSupportsToastFor(os: string, _version: string | number): boolean {
+  return os === 'ios';
 }
 
 function runtimeSupportsToast(): boolean {
@@ -121,7 +121,7 @@ function warnUnsupportedOnce(): void {
   }
   hasWarnedUnsupported = true;
   console.warn(
-    '[expo-toast] Unsupported platform. Toast calls are no-op unless running on iOS 26+.',
+    '[expo-toast] Unsupported platform. Toast calls are no-op unless running on iOS 15.1+.',
   );
 }
 

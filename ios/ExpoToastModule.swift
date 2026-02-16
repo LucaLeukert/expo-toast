@@ -262,7 +262,11 @@ public class ExpoToastModule: Module, ToastPresenterDelegate {
 
   private static func supportsCurrentPlatform() -> Bool {
 #if os(iOS)
-    ProcessInfo.processInfo.operatingSystemVersion.majorVersion >= 26
+    if #available(iOS 15.1, *) {
+      true
+    } else {
+      false
+    }
 #else
     false
 #endif

@@ -8,7 +8,7 @@
   --sl-color-bg-sidebar: #f8fafc;
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   --sl-color-accent-low: #1e293b;
   --sl-color-accent: #7aa2ff;
   --sl-color-accent-high: #dbe7ff;
@@ -49,56 +49,56 @@
   background: #ffffff;
 }
 
-:root[data-theme='dark'] .expressive-grid .expressive-card {
+:root[data-theme="dark"] .expressive-grid .expressive-card {
   background: #0f172a;
   border-color: #334155;
 }
 
-:root[data-theme='dark'] .hero {
+:root[data-theme="dark"] .hero {
   border-color: #334155;
 }
 
 /* Starlight component-level dark overrides */
-:root[data-theme='dark'] .sidebar-pane a[aria-current='page'] {
+:root[data-theme="dark"] .sidebar-pane a[aria-current="page"] {
   background: #1f2937;
   color: #f8fafc;
 }
 
-:root[data-theme='dark'] .sidebar-pane a[aria-current='page']:hover {
+:root[data-theme="dark"] .sidebar-pane a[aria-current="page"]:hover {
   background: #334155;
 }
 
-:root[data-theme='dark'] .sidebar-content a[aria-current='page'],
-:root[data-theme='dark'] .right-sidebar a[aria-current='page'] {
+:root[data-theme="dark"] .sidebar-content a[aria-current="page"],
+:root[data-theme="dark"] .right-sidebar a[aria-current="page"] {
   background: #1f2937;
   color: #f8fafc;
 }
 
-:root[data-theme='dark'] site-search button[data-open-modal] {
+:root[data-theme="dark"] site-search button[data-open-modal] {
   background: #111827;
   color: #e5e7eb;
   border-color: #334155;
 }
 
-:root[data-theme='dark'] site-search button[data-open-modal]:hover {
+:root[data-theme="dark"] site-search button[data-open-modal]:hover {
   background: #1f2937;
 }
 
-:root[data-theme='dark'] site-search button[data-open-modal] kbd {
+:root[data-theme="dark"] site-search button[data-open-modal] kbd {
   background: #1f2937;
   color: #cbd5e1;
   border-color: #475569;
 }
 
-:root[data-theme='dark'] #starlight__search .pagefind-ui__search-input,
-:root[data-theme='dark'] #starlight__search .pagefind-ui__search-clear {
+:root[data-theme="dark"] #starlight__search .pagefind-ui__search-input,
+:root[data-theme="dark"] #starlight__search .pagefind-ui__search-clear {
   background: #111827;
   color: #e5e7eb;
   border-color: #334155;
 }
 
-:root[data-theme='dark'] .expressive-code .frame .header,
-:root[data-theme='dark'] .expressive-code .frame .copy {
+:root[data-theme="dark"] .expressive-code .frame .header,
+:root[data-theme="dark"] .expressive-code .frame .copy {
   background: #111827;
   border-color: #334155;
   color: #cbd5e1;
