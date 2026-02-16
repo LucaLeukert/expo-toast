@@ -1,6 +1,6 @@
 {
-  "name": "expo-toast",
-  "version": "0.1.0",
+  "name": "@derluleu/expo-toast",
+  "version": "0.1.1",
   "description": "Native-feeling liquid-glass toast notifications for Expo (iOS 26+)",
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -43,14 +43,16 @@
     "toast",
     "ios"
   ],
-  "repository": "https://github.com/lucaleukert/expo-toast",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lucaleukert/expo-toast.git"
+  },
   "bugs": {
     "url": "https://github.com/lucaleukert/expo-toast/issues"
   },
   "author": "Luca Leukert",
   "license": "MIT",
   "homepage": "https://github.com/lucaleukert/expo-toast#readme",
-  "dependencies": {},
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",
     "@types/react": "~19.1.0",

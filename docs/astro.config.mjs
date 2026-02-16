@@ -12,7 +12,7 @@ export default defineConfig({
   integrations: [
     starlight({
       title: 'expo-toast',
-      description: 'Native-feeling liquid-glass toast notifications for Expo (iOS 26+).',
+      description: 'Simple, user-focused docs for expo-toast.',
       customCss: ['./src/styles/custom.css'],
       social: {
         github: 'https://github.com/lucaleukert/expo-toast',
@@ -21,14 +21,20 @@ export default defineConfig({
         {
           label: 'Getting Started',
           items: [
+            { label: 'Overview', slug: '' },
             { label: 'Quick Start', slug: 'guides/quick-start' },
-            { label: 'API Reference', slug: 'guides/api' },
           ],
         },
         {
-          label: 'Source of Truth',
+          label: 'API',
           items: [
+            { label: 'API Overview', slug: 'guides/api' },
             { label: 'API (JSDoc)', slug: 'reference/api' },
+          ],
+        },
+        {
+          label: 'Reference',
+          items: [
             { label: 'README', slug: 'reference/readme' },
             { label: 'Changelog', slug: 'reference/changelog' },
           ],

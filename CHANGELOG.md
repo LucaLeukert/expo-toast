@@ -8,6 +8,14 @@ All notable changes to this project will be documented in this file.
 - Added Astro Starlight docs site in `docs/` and GitHub Pages deployment workflow (`.github/workflows/docs.yml`).
 - Added docs sync tooling so root `README.md` and `CHANGELOG.md` are canonical (`scripts/sync-docs.mjs`).
 
+## 0.1.1 - 2026-02-16
+
+- Changed package scope to `@derluleu/expo-toast` for npm publishability.
+- Added generated JSDoc API reference integration in docs (`/reference/api`).
+- Simplified docs UX and sidebar structure while keeping Starlight.
+- Fixed dark theme contrast issues in docs, including search and active navigation states.
+- Fixed docs workflow order to install root dependencies before `docs:sync`.
+
 ## 0.1.0 - 2026-02-16
 
 - Initial public release.
