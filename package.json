@@ -45,14 +45,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/lucaleukert/expo-toast.git"
+    "url": "https://github.com/LucaLeukert/expo-toast"
   },
   "bugs": {
-    "url": "https://github.com/lucaleukert/expo-toast/issues"
+    "url": "https://github.com/LucaLeukert/expo-toast/issues"
   },
   "author": "Luca Leukert",
   "license": "MIT",
-  "homepage": "https://github.com/lucaleukert/expo-toast#readme",
+  "homepage": "https://github.com/LucaLeukert/expo-toast#readme",
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",
     "@types/react": "~19.1.0",
