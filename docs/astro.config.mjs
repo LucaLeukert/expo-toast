@@ -28,6 +28,7 @@ export default defineConfig({
         {
           label: 'Source of Truth',
           items: [
+            { label: 'API (JSDoc)', slug: 'reference/api' },
             { label: 'README', slug: 'reference/readme' },
             { label: 'Changelog', slug: 'reference/changelog' },
           ],

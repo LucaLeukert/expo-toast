@@ -29,7 +29,7 @@ bun add expo-toast
 
 - Docs site: `https://lucaleukert.github.io/expo-toast/`
 - Source docs live in `docs/` (Astro + Starlight)
-- Root `README.md` and `CHANGELOG.md` are canonical and synced into docs via:
+- Root `README.md`, `CHANGELOG.md`, and public API JSDoc are synced into docs via:
 
 ```bash
 bun run docs:sync
@@ -114,7 +114,7 @@ bun run start
 ## Repository scripts
 
 - `bun run build` builds module typings + JS output
-- `bun run docs:sync` syncs root README/CHANGELOG into docs reference pages
+- `bun run docs:sync` syncs README/CHANGELOG + generated JSDoc API docs into docs reference pages
 - `bun run docs:check-sync` verifies docs references are in sync
 - `bun run docs:dev` runs the Astro docs site locally
 - `bun run docs:build` builds the Astro docs site
