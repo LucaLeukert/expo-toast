@@ -34,6 +34,10 @@ private final class ToastPanGestureRecognizer: UIPanGestureRecognizer {
 
 final class ToastPresenter: NSObject {
   static let shared = ToastPresenter()
+  private struct ReflowShift {
+    let view: UIView
+    let baselineTransform: CGAffineTransform
+  }
 
   weak var delegate: ToastPresenterDelegate?
 
@@ -90,8 +94,9 @@ final class ToastPresenter: NSObject {
     payloadsById[payload.id] = payload
 
     let stack = payload.position == .top ? topStack : bottomStack
-    root.layoutIfNeeded()
+    let reflowStartFrames = captureStackFrames(in: stack, root: root)
     insert(toast: toast, into: stack, position: payload.position, placement: insertion.placement)
+    let reflowShifts = prepareReflowShifts(in: stack, root: root, from: reflowStartFrames, excluding: toast)
 
     let maxWidth = toast.widthAnchor.constraint(lessThanOrEqualToConstant: 560)
     let fillWidth = toast.widthAnchor.constraint(equalTo: root.widthAnchor, multiplier: 0.92)
@@ -132,6 +137,9 @@ final class ToastPresenter: NSObject {
                    options: [.curveEaseOut, .allowUserInteraction]) {
       toast.alpha = 1
       toast.transform = .identity
+      for shift in reflowShifts {
+        shift.view.transform = shift.baselineTransform
+      }
       root.layoutIfNeeded()
     } completion: { [weak self] _ in
       self?.delegate?.toastDidShow(id: payload.id)
@@ -189,11 +197,22 @@ final class ToastPresenter: NSObject {
       animationDuration = 0.2
     }
 
-    detachForIndependentAnimation(view: toast)
+    let stackReflowShifts: [ReflowShift]
+    if let root = overlayRootView, let stack = toast.superview as? UIStackView {
+      let reflowStartFrames = captureStackFrames(in: stack, root: root)
+      detachForIndependentAnimation(view: toast)
+      stackReflowShifts = prepareReflowShifts(in: stack, root: root, from: reflowStartFrames, excluding: nil)
+    } else {
+      detachForIndependentAnimation(view: toast)
+      stackReflowShifts = []
+    }
 
     UIView.animate(withDuration: animationDuration, delay: 0, options: [.curveEaseIn]) {
       toast.alpha = 0
       toast.transform = targetTransform
+      for shift in stackReflowShifts {
+        shift.view.transform = shift.baselineTransform
+      }
       self.overlayRootView?.layoutIfNeeded()
     } completion: { [weak self] _ in
       guard let self else { return }
@@ -530,6 +549,48 @@ final class ToastPresenter: NSObject {
     view.translatesAutoresizingMaskIntoConstraints = true
     view.frame = absoluteFrame
     root.addSubview(view)
+  }
+
+  private func captureStackFrames(in stack: UIStackView, root: UIView) -> [ObjectIdentifier: CGRect] {
+    root.layoutIfNeeded()
+    var frames: [ObjectIdentifier: CGRect] = [:]
+    for view in stack.arrangedSubviews where view.isUserInteractionEnabled {
+      frames[ObjectIdentifier(view)] = root.convert(view.frame, from: stack)
+    }
+    return frames
+  }
+
+  private func prepareReflowShifts(
+    in stack: UIStackView,
+    root: UIView,
+    from startFrames: [ObjectIdentifier: CGRect],
+    excluding excludedView: UIView?
+  ) -> [ReflowShift] {
+    root.layoutIfNeeded()
+    var shifts: [ReflowShift] = []
+
+    for view in stack.arrangedSubviews where view.isUserInteractionEnabled {
+      if let excludedView, view === excludedView {
+        continue
+      }
+
+      let identifier = ObjectIdentifier(view)
+      guard let startFrame = startFrames[identifier] else {
+        continue
+      }
+      let endFrame = root.convert(view.frame, from: stack)
+      let deltaY = startFrame.minY - endFrame.minY
+
+      guard abs(deltaY) > 0.5 else {
+        continue
+      }
+
+      let baselineTransform = view.transform
+      view.transform = baselineTransform.translatedBy(x: 0, y: deltaY)
+      shifts.append(ReflowShift(view: view, baselineTransform: baselineTransform))
+    }
+
+    return shifts
   }
 
   private func registerKeyboardObservers() {
