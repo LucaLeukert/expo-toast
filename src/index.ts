@@ -20,4 +20,9 @@ export type {
   ToastTransitionOptions,
   ToastVariant,
 } from './ExpoToast.types';
-export { normalizeDuration, parseIOSMajorVersion, runtimeSupportsToastFor, toast } from './toast';
+export {
+  normalizeDuration,
+  parseIOSMajorVersion,
+  runtimeSupportsToastFor,
+  toast,
+} from './toast';

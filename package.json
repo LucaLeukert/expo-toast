@@ -10,7 +10,9 @@
     "ios",
     "src",
     "expo-module.config.json",
-    "README.md"
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "expo-module build",
@@ -21,9 +23,14 @@
     "format:check": "biome format .",
     "test": "vitest run",
     "test:unit": "vitest run",
-    "prepare": "expo-module prepare",
+    "prepare": "node scripts/prepare.mjs",
     "prepublishOnly": "expo-module prepublishOnly",
     "expo-module": "expo-module",
+    "docs:sync": "node scripts/sync-docs.mjs",
+    "docs:check-sync": "node scripts/sync-docs.mjs --check",
+    "docs:install": "cd docs && bun install",
+    "docs:dev": "cd docs && bun run dev",
+    "docs:build": "node scripts/docs-build.mjs",
     "example:start": "cd example && bun run start",
     "example:ios": "cd example && bun run ios",
     "example:device": "cd example && bun run ios",

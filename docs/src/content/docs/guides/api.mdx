@@ -1,0 +1,33 @@
+---
+title: API Reference
+description: TypeScript API surface for expo-toast.
+slug: guides/api
+---
+
+## Methods
+
+- `toast.show(options): ToastId`
+- `toast.success(message, options?)`
+- `toast.error(message, options?)`
+- `toast.info(message, options?)`
+- `toast.loading(message, options?)`
+- `toast.transition(id, options)`
+- `toast.update(id, options)`
+- `toast.promise(promise, messages, options?)`
+- `toast.configure(config)`
+- `toast.dismiss(id?)`
+- `toast.dismissAll()`
+- `toast.isSupported(): boolean`
+
+## Queue options
+
+- `maxVisible`: visible toast count per edge
+- `maxQueue`: pending toast count per edge
+- `dropPolicy`: `'oldest' | 'newest'` when pending queue is full
+
+## Accessibility and motion
+
+- `accessibilityLabel?: string`
+- `announce?: boolean`
+- `importance?: 'low' | 'normal' | 'high'`
+- `motion?: 'system' | 'full' | 'minimal'`

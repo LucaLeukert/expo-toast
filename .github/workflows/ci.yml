@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Verify docs sync
+        run: bun run docs:check-sync
+
       - name: Lint (Biome)
         run: bun run lint
 
@@ -29,3 +32,9 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      - name: Install docs dependencies
+        run: cd docs && bun install --frozen-lockfile
+
+      - name: Build docs
+        run: bun run docs:build

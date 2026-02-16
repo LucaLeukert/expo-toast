@@ -1,0 +1,48 @@
+:root {
+  --sl-color-accent-low: #e0f2fe;
+  --sl-color-accent: #0369a1;
+  --sl-color-accent-high: #082f49;
+  --sl-color-text: #0f172a;
+  --sl-color-bg: #f8fafc;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #f1f5f9;
+}
+
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #0c4a6e;
+  --sl-color-accent: #38bdf8;
+  --sl-color-accent-high: #e0f2fe;
+  --sl-color-bg: #0b1220;
+  --sl-color-bg-nav: #0a101c;
+  --sl-color-bg-sidebar: #0f172a;
+}
+
+.hero {
+  background:
+    radial-gradient(1200px 400px at 10% -20%, rgb(14 165 233 / 0.18), transparent 60%),
+    radial-gradient(900px 300px at 90% -10%, rgb(16 185 129 / 0.16), transparent 58%);
+  border-radius: 1.1rem;
+}
+
+.hero h1 {
+  letter-spacing: -0.03em;
+}
+
+.expressive-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+}
+
+.expressive-card {
+  background: linear-gradient(160deg, rgb(255 255 255 / 0.72), rgb(226 232 240 / 0.62));
+  border: 1px solid rgb(148 163 184 / 0.22);
+  border-radius: 0.9rem;
+  padding: 0.8rem 0.9rem;
+  backdrop-filter: blur(8px);
+}
+
+:root[data-theme="dark"] .expressive-card {
+  background: linear-gradient(160deg, rgb(15 23 42 / 0.7), rgb(30 41 59 / 0.72));
+  border-color: rgb(148 163 184 / 0.25);
+}

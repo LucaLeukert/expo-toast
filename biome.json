@@ -15,7 +15,10 @@
       "!example/ios",
       "!example/android",
       "!example/node_modules",
-      "!node_modules"
+      "!node_modules",
+      "!docs/node_modules",
+      "!docs/dist",
+      "!docs/.astro"
     ]
   },
   "formatter": {
