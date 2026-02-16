@@ -1,0 +1,17 @@
+{
+  "expo": {
+    "name": "expo-toast-example",
+    "slug": "expo-toast-example",
+    "version": "1.0.0",
+    "scheme": "dev.expo.toast.example",
+    "orientation": "portrait",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "dev.expo.toast.example"
+    },
+    "android": {
+      "package": "dev.expo.toast.example"
+    }
+  }
+}
