@@ -26,6 +26,9 @@ jobs:
         with:
           node-version: 20
 
+      - name: Setup npm (Trusted Publishing)
+        run: npm install -g npm@11
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -43,6 +46,22 @@ jobs:
 
       - name: Build
         run: bun run build
+
+      - name: Debug Trusted Publishing context
+        run: |
+          echo "npm version: $(npm -v)"
+          echo "node version: $(node -v)"
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL set: $([[ -n \"$ACTIONS_ID_TOKEN_REQUEST_URL\" ]] && echo yes || echo no)"
+          echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN set: $([[ -n \"$ACTIONS_ID_TOKEN_REQUEST_TOKEN\" ]] && echo yes || echo no)"
+          if [[ -n "$ACTIONS_ID_TOKEN_REQUEST_URL" && -n "$ACTIONS_ID_TOKEN_REQUEST_TOKEN" ]]; then
+            TOKEN_RESPONSE="$(curl -sS -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=npm:registry.npmjs.org")"
+            OIDC_TOKEN="$(echo "$TOKEN_RESPONSE" | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);process.stdout.write(j.value||'')}catch{}})")"
+            if [[ -n "$OIDC_TOKEN" ]]; then
+              node -e "const t=process.argv[1]; const p=t.split('.')[1]; const payload=JSON.parse(Buffer.from(p,'base64url').toString('utf8')); const out={iss:payload.iss,sub:payload.sub,aud:payload.aud,repository:payload.repository,repository_owner:payload.repository_owner,workflow_ref:payload.workflow_ref,job_workflow_ref:payload.job_workflow_ref,ref:payload.ref,sha:payload.sha}; console.log('OIDC claims:', JSON.stringify(out,null,2));" "$OIDC_TOKEN"
+            else
+              echo "Failed to fetch OIDC token payload"
+            fi
+          fi
 
       - name: Publish to npm
         run: npm publish --provenance --access public
