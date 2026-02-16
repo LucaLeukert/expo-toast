@@ -2,6 +2,7 @@ import { AccessibilityInfo, Platform } from 'react-native';
 
 import type {
   ToastActionPressEvent,
+  ToastApi,
   ToastConfig,
   ToastDismissEvent,
   ToastDropPolicy,
@@ -91,6 +92,9 @@ const config: ToastRuntimeConfig = {
   dropPolicy: 'oldest',
 };
 
+/**
+ * Parses an iOS runtime version into its major integer.
+ */
 export function parseIOSMajorVersion(version: string | number): number {
   if (typeof version === 'number') {
     return Math.trunc(version);
@@ -100,6 +104,9 @@ export function parseIOSMajorVersion(version: string | number): number {
   return Number.isFinite(major) ? major : 0;
 }
 
+/**
+ * Returns whether the provided runtime tuple supports the native toast presenter.
+ */
 export function runtimeSupportsToastFor(os: string, version: string | number): boolean {
   return os === 'ios' && parseIOSMajorVersion(version) >= 26;
 }
@@ -231,6 +238,9 @@ function nextToastId(): ToastId {
   return `toast_${Date.now()}_${idCounter}`;
 }
 
+/**
+ * Normalizes toast duration presets into milliseconds.
+ */
 export function normalizeDuration(
   duration: ToastDuration | undefined,
   variant: ToastVariant,
@@ -579,7 +589,10 @@ function promise<T>(
     });
 }
 
-export const toast = {
+/**
+ * Imperative toast API for showing, updating, and dismissing toasts.
+ */
+export const toast: ToastApi = {
   show,
   transition,
   update,

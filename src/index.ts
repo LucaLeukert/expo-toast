@@ -2,6 +2,7 @@ export type {
   ExpoToastModuleEvents,
   ToastAction,
   ToastActionPressEvent,
+  ToastApi,
   ToastConfig,
   ToastDismissEvent,
   ToastDismissReason,
