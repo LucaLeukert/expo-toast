@@ -88,12 +88,22 @@ final class ToastQueue {
         visibleTop.insert(payload.id, at: 0)
         return (ToastInsertion(payload: payload, placement: .nearEdge), nil)
       }
-      var dropped: ToastPayload?
-      if maxQueuePerPosition > 0, pendingTop.count >= maxQueuePerPosition {
-        dropped = dropFromPending(&pendingTop)
-      } else if maxQueuePerPosition == 0 {
+      var dropped: ToastPayload? = nil
+      if maxQueuePerPosition == 0 {
         payloadsById.removeValue(forKey: payload.id)
         return (nil, payload)
+      }
+      if pendingTop.count >= maxQueuePerPosition {
+        if dropPolicy == .newest {
+          // Drop incoming payload when configured to prefer older queued toasts.
+          payloadsById.removeValue(forKey: payload.id)
+          return (nil, payload)
+        }
+        dropped = dropFromPending(&pendingTop)
+      }
+      if dropped?.id == payload.id {
+        payloadsById.removeValue(forKey: payload.id)
+        return (nil, dropped)
       }
       pendingTop.append(payload)
       return (nil, dropped)
@@ -102,12 +112,22 @@ final class ToastQueue {
         visibleBottom.append(payload.id)
         return (ToastInsertion(payload: payload, placement: .nearEdge), nil)
       }
-      var dropped: ToastPayload?
-      if maxQueuePerPosition > 0, pendingBottom.count >= maxQueuePerPosition {
-        dropped = dropFromPending(&pendingBottom)
-      } else if maxQueuePerPosition == 0 {
+      var dropped: ToastPayload? = nil
+      if maxQueuePerPosition == 0 {
         payloadsById.removeValue(forKey: payload.id)
         return (nil, payload)
+      }
+      if pendingBottom.count >= maxQueuePerPosition {
+        if dropPolicy == .newest {
+          // Drop incoming payload when configured to prefer older queued toasts.
+          payloadsById.removeValue(forKey: payload.id)
+          return (nil, payload)
+        }
+        dropped = dropFromPending(&pendingBottom)
+      }
+      if dropped?.id == payload.id {
+        payloadsById.removeValue(forKey: payload.id)
+        return (nil, dropped)
       }
       pendingBottom.append(payload)
       return (nil, dropped)

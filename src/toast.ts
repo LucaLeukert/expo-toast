@@ -27,6 +27,7 @@ const LONG_MS = 4500;
 const INFINITE_MS = -1;
 const DEFAULT_MAX_VISIBLE = 3;
 const DEFAULT_MAX_QUEUE = 50;
+const MAX_DEDUPE_ENTRIES = 500;
 
 type ActiveToastState = {
   variant: ToastVariant;
@@ -147,7 +148,7 @@ function ensureRuntime(): void {
     return;
   }
 
-  void AccessibilityInfo.isReduceMotionEnabled()
+  AccessibilityInfo.isReduceMotionEnabled()
     .then((value) => {
       reducedMotionEnabled = Boolean(value);
     })
@@ -156,6 +157,27 @@ function ensureRuntime(): void {
   AccessibilityInfo.addEventListener('reduceMotionChanged', (value) => {
     reducedMotionEnabled = Boolean(value);
   });
+}
+
+function pruneDedupeMap(now: number, windowMs: number): void {
+  if (windowMs <= 0) {
+    recentDedupe.clear();
+    return;
+  }
+
+  for (const [key, entry] of recentDedupe.entries()) {
+    if (now - entry.timestamp > windowMs) {
+      recentDedupe.delete(key);
+    }
+  }
+
+  while (recentDedupe.size > MAX_DEDUPE_ENTRIES) {
+    const oldestKey = recentDedupe.keys().next().value;
+    if (oldestKey === undefined) {
+      break;
+    }
+    recentDedupe.delete(oldestKey);
+  }
 }
 
 function ensureListeners(): void {
@@ -175,7 +197,7 @@ function ensureListeners(): void {
     callbacks.delete(event.id);
 
     const metadata = activeToasts.get(event.id);
-    if (metadata?.dedupeKey) {
+    if (metadata?.dedupeKey && config.dedupeWindowMs > 0) {
       const dedupeEntry = recentDedupe.get(metadata.dedupeKey);
       if (dedupeEntry?.id === event.id) {
         recentDedupe.set(metadata.dedupeKey, {
@@ -273,6 +295,9 @@ function dedupeFor(
   dedupeKey: string | undefined,
   windowMs: number,
 ): ToastId | null {
+  const now = Date.now();
+  pruneDedupeMap(now, windowMs);
+
   if (windowMs <= 0) {
     return null;
   }
@@ -283,7 +308,7 @@ function dedupeFor(
     return null;
   }
 
-  if (Date.now() - existing.timestamp <= windowMs) {
+  if (now - existing.timestamp <= windowMs) {
     return existing.id;
   }
 
@@ -337,7 +362,11 @@ function show(options: ToastOptions): ToastId {
     importance,
     motion,
   });
-  recentDedupe.set(dedupeKey, { id, timestamp: Date.now() });
+  if (config.dedupeWindowMs > 0) {
+    const now = Date.now();
+    pruneDedupeMap(now, config.dedupeWindowMs);
+    recentDedupe.set(dedupeKey, { id, timestamp: now });
+  }
 
   ExpoToastModule.show({
     id,
@@ -493,6 +522,11 @@ function configure(next: ToastConfig): void {
   }
   if (next.dedupeWindowMs !== undefined && Number.isFinite(next.dedupeWindowMs)) {
     config.dedupeWindowMs = Math.max(0, Math.round(next.dedupeWindowMs));
+    if (config.dedupeWindowMs <= 0) {
+      recentDedupe.clear();
+    } else {
+      pruneDedupeMap(Date.now(), config.dedupeWindowMs);
+    }
   }
   if (next.maxVisible !== undefined) {
     config.maxVisible = normalizeQueueLimit(next.maxVisible, DEFAULT_MAX_VISIBLE, 1);
