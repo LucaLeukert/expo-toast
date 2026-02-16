@@ -42,6 +42,18 @@ function unwrapAlias(symbol, checker) {
   return symbol;
 }
 
+function compareByName(a, b) {
+  const aName = a.getName();
+  const bName = b.getName();
+  if (aName < bName) {
+    return -1;
+  }
+  if (aName > bName) {
+    return 1;
+  }
+  return 0;
+}
+
 function renderFunctionSignature(symbol, checker, declaration) {
   const signatures = checker.getTypeOfSymbolAtLocation(symbol, declaration).getCallSignatures();
   if (signatures.length === 0) {
@@ -169,7 +181,7 @@ function main() {
   const exports = checker
     .getExportsOfModule(moduleSymbol)
     .filter((symbol) => symbol.getName() !== 'default')
-    .sort((a, b) => a.getName().localeCompare(b.getName()));
+    .sort(compareByName);
 
   for (const exportSymbol of exports) {
     const symbol = unwrapAlias(exportSymbol, checker);
