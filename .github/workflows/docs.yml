@@ -8,6 +8,7 @@ on:
       - 'CHANGELOG.md'
       - 'docs/**'
       - 'scripts/sync-docs.mjs'
+      - 'scripts/sync-api-docs.mjs'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
 
@@ -34,6 +35,9 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Install root dependencies
+        run: bun install --frozen-lockfile
 
       - name: Sync docs sources
         run: bun run docs:sync
