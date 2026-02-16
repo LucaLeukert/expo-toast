@@ -3,6 +3,7 @@ import { NativeModule, requireNativeModule } from 'expo';
 import type {
   ExpoToastModuleEvents,
   NativeToastPayload,
+  NativeToastQueueConfig,
   NativeToastTransitionPayload,
   ToastId,
 } from './ExpoToast.types';
@@ -10,6 +11,7 @@ import type {
 declare class ExpoToastModule extends NativeModule<ExpoToastModuleEvents> {
   show(payload: NativeToastPayload): void;
   transition(payload: NativeToastTransitionPayload): void;
+  setQueueConfig(payload: NativeToastQueueConfig): void;
   dismiss(id?: ToastId): void;
   dismissAll(): void;
   isSupported(): boolean;
@@ -35,6 +37,7 @@ try {
     listenerCount: () => 0,
     show: () => {},
     transition: () => {},
+    setQueueConfig: () => {},
     dismiss: () => {},
     dismissAll: () => {},
     isSupported: () => false,

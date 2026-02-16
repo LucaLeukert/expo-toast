@@ -28,6 +28,18 @@ internal struct ToastPayloadRecord: Record {
 
   @Field
   var haptics: Bool = true
+
+  @Field
+  var accessibilityLabel: String?
+
+  @Field
+  var announce: Bool = true
+
+  @Field
+  var importance: String = "normal"
+
+  @Field
+  var reducedMotion: Bool = false
 }
 
 internal struct ToastTransitionRecord: Record {
@@ -60,6 +72,29 @@ internal struct ToastTransitionRecord: Record {
 
   @Field
   var haptics: Bool?
+
+  @Field
+  var accessibilityLabel: String?
+
+  @Field
+  var announce: Bool?
+
+  @Field
+  var importance: String?
+
+  @Field
+  var reducedMotion: Bool?
+}
+
+internal struct ToastQueueConfigRecord: Record {
+  @Field
+  var maxVisible: Int = 3
+
+  @Field
+  var maxQueue: Int = 50
+
+  @Field
+  var dropPolicy: String = "oldest"
 }
 
 public class ExpoToastModule: Module, ToastPresenterDelegate {
@@ -81,10 +116,41 @@ public class ExpoToastModule: Module, ToastPresenterDelegate {
       }
 
       let parsed = Self.parse(payload: payload)
-      if let insertion = queue.enqueue(parsed) {
+      let result = queue.enqueue(parsed)
+      if let insertion = result.insertion {
         ToastPresenter.shared.present(insertion)
       }
+      if let dropped = result.dropped {
+        sendEvent("onToastDismiss", [
+          "id": dropped.id,
+          "reason": ToastDismissReason.replaced.rawValue
+        ])
+      }
       syncCollapsedIndicators()
+    }
+    .runOnQueue(.main)
+
+    AsyncFunction("setQueueConfig") { (payload: ToastQueueConfigRecord) in
+      guard Self.supportsCurrentPlatform() else {
+        return
+      }
+
+      let maxVisible = max(1, payload.maxVisible)
+      let maxQueue = max(0, payload.maxQueue)
+      let dropPolicy = ToastDropPolicy(rawValue: payload.dropPolicy) ?? .oldest
+      let dropped = queue.updateConfiguration(
+        maxVisiblePerPosition: maxVisible,
+        maxQueuePerPosition: maxQueue,
+        dropPolicy: dropPolicy
+      )
+      syncCollapsedIndicators()
+
+      for payload in dropped {
+        sendEvent("onToastDismiss", [
+          "id": payload.id,
+          "reason": ToastDismissReason.replaced.rawValue
+        ])
+      }
     }
     .runOnQueue(.main)
 
@@ -222,6 +288,11 @@ public class ExpoToastModule: Module, ToastPresenterDelegate {
     let sizeRaw = payload.size
     let size = ToastSizeMode(rawValue: sizeRaw) ?? .fillWidth
     let haptics = payload.haptics
+    let accessibilityLabel = payload.accessibilityLabel
+    let announce = payload.announce
+    let importanceRaw = payload.importance
+    let importance = ToastImportance(rawValue: importanceRaw) ?? .normal
+    let reducedMotion = payload.reducedMotion
 
     return ToastPayload(
       id: id,
@@ -232,7 +303,11 @@ public class ExpoToastModule: Module, ToastPresenterDelegate {
       durationMs: durationMs,
       position: position,
       size: size,
-      haptics: haptics
+      haptics: haptics,
+      accessibilityLabel: accessibilityLabel,
+      announce: announce,
+      importance: importance,
+      reducedMotion: reducedMotion
     )
   }
 
@@ -264,6 +339,10 @@ public class ExpoToastModule: Module, ToastPresenterDelegate {
 
     let nextSize = transition.size.flatMap(ToastSizeMode.init(rawValue:)) ?? current.size
     let nextHaptics = transition.haptics ?? current.haptics
+    let nextAccessibilityLabel = transition.accessibilityLabel ?? current.accessibilityLabel
+    let nextAnnounce = transition.announce ?? current.announce
+    let nextImportance = transition.importance.flatMap(ToastImportance.init(rawValue:)) ?? current.importance
+    let nextReducedMotion = transition.reducedMotion ?? current.reducedMotion
 
     return ToastPayload(
       id: current.id,
@@ -274,7 +353,11 @@ public class ExpoToastModule: Module, ToastPresenterDelegate {
       durationMs: nextDurationMs,
       position: current.position,
       size: nextSize,
-      haptics: nextHaptics
+      haptics: nextHaptics,
+      accessibilityLabel: nextAccessibilityLabel,
+      announce: nextAnnounce,
+      importance: nextImportance,
+      reducedMotion: nextReducedMotion
     )
   }
 }

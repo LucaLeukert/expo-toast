@@ -66,6 +66,7 @@ final class ToastPresenter: NSObject {
     }
 
     let window = ensureOverlayWindow()
+    window.windowLevel = windowLevel(for: payload.importance)
     guard let root = window.rootViewController?.view,
           let topStack = topStackView,
           let bottomStack = bottomStackView else {
@@ -121,7 +122,9 @@ final class ToastPresenter: NSObject {
       toast.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
     }
 
-    UIAccessibility.post(notification: .announcement, argument: toast.accessibilityLabel)
+    if payload.announce {
+      UIAccessibility.post(notification: .announcement, argument: toast.accessibilityLabel)
+    }
 
     if payload.haptics {
       playHaptic(for: payload.variant)
@@ -130,20 +133,36 @@ final class ToastPresenter: NSObject {
     // Ensure initial frame is resolved before animating transform/alpha.
     root.layoutIfNeeded()
 
-    UIView.animate(withDuration: 0.42,
-                   delay: 0,
-                   usingSpringWithDamping: 0.76,
-                   initialSpringVelocity: 0.4,
-                   options: [.curveEaseOut, .allowUserInteraction]) {
-      toast.alpha = 1
-      toast.transform = .identity
-      for shift in reflowShifts {
-        shift.view.transform = shift.baselineTransform
+    if payload.reducedMotion {
+      UIView.animate(withDuration: 0.16,
+                     delay: 0,
+                     options: [.curveEaseOut, .allowUserInteraction]) {
+        toast.alpha = 1
+        toast.transform = .identity
+        for shift in reflowShifts {
+          shift.view.transform = shift.baselineTransform
+        }
+        root.layoutIfNeeded()
+      } completion: { [weak self] _ in
+        self?.delegate?.toastDidShow(id: payload.id)
+        self?.scheduleDismissIfNeeded(for: payload)
       }
-      root.layoutIfNeeded()
-    } completion: { [weak self] _ in
-      self?.delegate?.toastDidShow(id: payload.id)
-      self?.scheduleDismissIfNeeded(for: payload)
+    } else {
+      UIView.animate(withDuration: 0.42,
+                     delay: 0,
+                     usingSpringWithDamping: 0.76,
+                     initialSpringVelocity: 0.4,
+                     options: [.curveEaseOut, .allowUserInteraction]) {
+        toast.alpha = 1
+        toast.transform = .identity
+        for shift in reflowShifts {
+          shift.view.transform = shift.baselineTransform
+        }
+        root.layoutIfNeeded()
+      } completion: { [weak self] _ in
+        self?.delegate?.toastDidShow(id: payload.id)
+        self?.scheduleDismissIfNeeded(for: payload)
+      }
     }
   }
 
@@ -164,7 +183,9 @@ final class ToastPresenter: NSObject {
       playHaptic(for: payload.variant)
     }
 
-    UIAccessibility.post(notification: .announcement, argument: toast.accessibilityLabel)
+    if payload.announce {
+      UIAccessibility.post(notification: .announcement, argument: toast.accessibilityLabel)
+    }
     scheduleDismissIfNeeded(for: payload)
   }
 
@@ -179,7 +200,10 @@ final class ToastPresenter: NSObject {
     let animationDuration: TimeInterval
     let targetTransform: CGAffineTransform
 
-    if let swipeVelocityY {
+    if payload.reducedMotion {
+      targetTransform = .identity
+      animationDuration = 0.14
+    } else if let swipeVelocityY {
       let currentY = toast.transform.ty
       let direction: CGFloat = currentY == 0
         ? (payload.position == .top ? -1 : 1)
@@ -531,6 +555,17 @@ final class ToastPresenter: NSObject {
       generator.notificationOccurred(.error)
     case .info, .loading:
       generator.notificationOccurred(.warning)
+    }
+  }
+
+  private func windowLevel(for importance: ToastImportance) -> UIWindow.Level {
+    switch importance {
+    case .low:
+      return .statusBar
+    case .normal:
+      return .alert + 1
+    case .high:
+      return .alert + 2
     }
   }
 

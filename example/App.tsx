@@ -1,5 +1,5 @@
 import { toast } from 'expo-toast';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 type DemoButtonProps = {
@@ -28,6 +28,16 @@ function DemoButton({ label, subtitle, onPress }: DemoButtonProps) {
 
 export default function App() {
   const [keyboardValue, setKeyboardValue] = useState('');
+
+  useEffect(() => {
+    toast.configure({
+      maxVisible: 3,
+      maxQueue: 20,
+      dropPolicy: 'oldest',
+      dedupeWindowMs: 1000,
+      motion: 'system',
+    });
+  }, []);
 
   return (
     <ScrollView
@@ -101,11 +111,50 @@ export default function App() {
 
       <DemoButton
         label="Queue Burst"
-        subtitle="10 toasts, FIFO one-at-a-time"
+        subtitle="10 toasts, queue caps + drop policy"
         onPress={() => {
           for (let i = 1; i <= 10; i += 1) {
             toast.info(`Queue item #${i}`, { duration: 'short' });
           }
+        }}
+      />
+
+      <DemoButton
+        label="Promise helper"
+        subtitle="loading -> success"
+        onPress={() => {
+          const work = new Promise<string>((resolve) => {
+            setTimeout(() => resolve('Upload complete'), 1300);
+          });
+          void toast.promise(work, {
+            loading: 'Uploading...',
+            success: (value) => value,
+            error: 'Upload failed',
+          });
+        }}
+      />
+
+      <DemoButton
+        label="Update alias"
+        subtitle="toast.update(id, options)"
+        onPress={() => {
+          const id = toast.loading('Processing...');
+          setTimeout(() => {
+            toast.update(id, {
+              variant: 'success',
+              message: 'Updated via alias',
+              duration: 'short',
+            });
+          }, 1200);
+        }}
+      />
+
+      <DemoButton
+        label="Dedupe window"
+        subtitle="Second call ignored within 1s"
+        onPress={() => {
+          toast.info('Please wait...');
+          toast.info('Please wait...');
         }}
       />
 

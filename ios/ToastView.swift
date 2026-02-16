@@ -66,7 +66,7 @@ final class ToastView: UIView {
       )
     }
 
-    accessibilityLabel = [payload.title, payload.message].compactMap { $0 }.joined(separator: ". ")
+    accessibilityLabel = payload.accessibilityLabel ?? [payload.title, payload.message].compactMap { $0 }.joined(separator: ". ")
     isAccessibilityElement = true
   }
 
@@ -87,16 +87,19 @@ final class ToastView: UIView {
       bringSubviewToFront(previousSnapshot)
     }
 
-    contentView.alpha = 0
-    contentView.transform = CGAffineTransform(scaleX: 0.98, y: 0.98)
+    contentView.alpha = payload.reducedMotion ? 0.35 : 0
+    contentView.transform = payload.reducedMotion ? .identity : CGAffineTransform(scaleX: 0.98, y: 0.98)
     previousSnapshot?.alpha = 1
     previousSnapshot?.transform = .identity
 
-    let animator = UIViewPropertyAnimator(duration: 0.28, dampingRatio: 0.92) {
+    let animator = UIViewPropertyAnimator(
+      duration: payload.reducedMotion ? 0.14 : 0.28,
+      dampingRatio: payload.reducedMotion ? 1.0 : 0.92
+    ) {
       contentView.alpha = 1
       contentView.transform = .identity
       previousSnapshot?.alpha = 0
-      previousSnapshot?.transform = CGAffineTransform(scaleX: 1.008, y: 1.008)
+      previousSnapshot?.transform = payload.reducedMotion ? .identity : CGAffineTransform(scaleX: 1.008, y: 1.008)
     }
     animator.addCompletion { _ in
       previousSnapshot?.removeFromSuperview()
@@ -113,12 +116,14 @@ private struct ToastGlassModel {
   let actionLabel: String?
   let actionTextColor: Color
   let actionTintColor: Color
+  let reducedMotion: Bool
 
   init(payload: ToastPayload) {
     variant = payload.variant
     title = payload.title
     message = payload.message
     actionLabel = payload.actionLabel
+    reducedMotion = payload.reducedMotion
 
     switch payload.variant {
     case .success:
@@ -149,7 +154,7 @@ private struct ToastGlassSurface: View {
   var body: some View {
     HStack(spacing: 10) {
       if model.variant == .loading {
-        LoadingDotsView()
+        LoadingDotsView(reducedMotion: model.reducedMotion)
           .frame(width: 20, height: 20)
       } else if let symbolName = model.symbolName {
         Image(systemName: symbolName)
@@ -209,7 +214,7 @@ private struct ToastFallbackSurface: View {
   var body: some View {
     HStack(spacing: 10) {
       if model.variant == .loading {
-        LoadingDotsView()
+        LoadingDotsView(reducedMotion: model.reducedMotion)
           .frame(width: 20, height: 20)
       } else if let symbolName = model.symbolName {
         Image(systemName: symbolName)
@@ -252,6 +257,7 @@ private struct ToastFallbackSurface: View {
 }
 
 private struct LoadingDotsView: View {
+  let reducedMotion: Bool
   @State private var isAnimating = false
 
   var body: some View {
@@ -262,6 +268,9 @@ private struct LoadingDotsView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .onAppear {
+      guard !reducedMotion else {
+        return
+      }
       withAnimation(.easeInOut(duration: 0.55).repeatForever(autoreverses: true)) {
         isAnimating = true
       }
@@ -273,8 +282,8 @@ private struct LoadingDotsView: View {
     Circle()
       .fill(Color.primary.opacity(0.9))
       .frame(width: 4.2, height: 4.2)
-      .scaleEffect(isAnimating ? 1.0 : 0.55, anchor: .center)
-      .opacity(isAnimating ? 1.0 : 0.45)
+      .scaleEffect(reducedMotion ? 1.0 : (isAnimating ? 1.0 : 0.55), anchor: .center)
+      .opacity(reducedMotion ? 0.85 : (isAnimating ? 1.0 : 0.45))
       .animation(
         .easeInOut(duration: 0.55)
           .repeatForever(autoreverses: true)

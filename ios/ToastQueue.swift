@@ -24,6 +24,17 @@ enum ToastSizeMode: String {
   case fillWidth = "fill-width"
 }
 
+enum ToastImportance: String {
+  case low
+  case normal
+  case high
+}
+
+enum ToastDropPolicy: String {
+  case oldest
+  case newest
+}
+
 struct ToastPayload {
   let id: String
   let variant: ToastVariant
@@ -34,6 +45,10 @@ struct ToastPayload {
   let position: ToastPosition
   let size: ToastSizeMode
   let haptics: Bool
+  let accessibilityLabel: String?
+  let announce: Bool
+  let importance: ToastImportance
+  let reducedMotion: Bool
 }
 
 enum ToastInsertionPlacement {
@@ -53,7 +68,9 @@ enum ToastDismissTarget {
 }
 
 final class ToastQueue {
-  private let maxVisiblePerPosition = 3
+  private var maxVisiblePerPosition = 3
+  private var maxQueuePerPosition = 50
+  private var dropPolicy: ToastDropPolicy = .oldest
 
   private var visibleTop: [String] = []
   private var visibleBottom: [String] = []
@@ -62,25 +79,59 @@ final class ToastQueue {
 
   private var payloadsById: [String: ToastPayload] = [:]
 
-  func enqueue(_ payload: ToastPayload) -> ToastInsertion? {
+  func enqueue(_ payload: ToastPayload) -> (insertion: ToastInsertion?, dropped: ToastPayload?) {
     payloadsById[payload.id] = payload
 
     switch payload.position {
     case .top:
       if visibleTop.count < maxVisiblePerPosition {
         visibleTop.insert(payload.id, at: 0)
-        return ToastInsertion(payload: payload, placement: .nearEdge)
+        return (ToastInsertion(payload: payload, placement: .nearEdge), nil)
+      }
+      var dropped: ToastPayload?
+      if maxQueuePerPosition > 0, pendingTop.count >= maxQueuePerPosition {
+        dropped = dropFromPending(&pendingTop)
+      } else if maxQueuePerPosition == 0 {
+        payloadsById.removeValue(forKey: payload.id)
+        return (nil, payload)
       }
       pendingTop.append(payload)
-      return nil
+      return (nil, dropped)
     case .bottom:
       if visibleBottom.count < maxVisiblePerPosition {
         visibleBottom.append(payload.id)
-        return ToastInsertion(payload: payload, placement: .nearEdge)
+        return (ToastInsertion(payload: payload, placement: .nearEdge), nil)
+      }
+      var dropped: ToastPayload?
+      if maxQueuePerPosition > 0, pendingBottom.count >= maxQueuePerPosition {
+        dropped = dropFromPending(&pendingBottom)
+      } else if maxQueuePerPosition == 0 {
+        payloadsById.removeValue(forKey: payload.id)
+        return (nil, payload)
       }
       pendingBottom.append(payload)
-      return nil
+      return (nil, dropped)
     }
+  }
+
+  func updateConfiguration(
+    maxVisiblePerPosition: Int,
+    maxQueuePerPosition: Int,
+    dropPolicy: ToastDropPolicy
+  ) -> [ToastPayload] {
+    self.maxVisiblePerPosition = maxVisiblePerPosition
+    self.maxQueuePerPosition = maxQueuePerPosition
+    self.dropPolicy = dropPolicy
+
+    var dropped: [ToastPayload] = []
+    dropped.append(contentsOf: trimPendingQueue(&pendingTop))
+    dropped.append(contentsOf: trimPendingQueue(&pendingBottom))
+
+    for removed in dropped {
+      payloadsById.removeValue(forKey: removed.id)
+    }
+
+    return dropped
   }
 
   func dismissTarget(id: String?) -> ToastDismissTarget {
@@ -225,5 +276,34 @@ final class ToastQueue {
     }
 
     return nil
+  }
+
+  private func trimPendingQueue(_ pending: inout [ToastPayload]) -> [ToastPayload] {
+    guard maxQueuePerPosition >= 0 else {
+      return []
+    }
+
+    var removed: [ToastPayload] = []
+    while pending.count > maxQueuePerPosition {
+      if let payload = dropFromPending(&pending) {
+        removed.append(payload)
+      } else {
+        break
+      }
+    }
+    return removed
+  }
+
+  private func dropFromPending(_ pending: inout [ToastPayload]) -> ToastPayload? {
+    guard !pending.isEmpty else {
+      return nil
+    }
+
+    switch dropPolicy {
+    case .oldest:
+      return pending.removeFirst()
+    case .newest:
+      return pending.removeLast()
+    }
   }
 }

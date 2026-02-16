@@ -8,6 +8,11 @@ Native-feeling liquid-glass toast notifications for Expo with an iOS-native pres
 - Imperative API (`toast.show`, `toast.success`, ...)
 - Preset variants: `success | error | info | loading`
 - Up to three visible toasts per edge + FIFO queue
+- Global defaults (`toast.configure`)
+- Promise helper (`toast.promise`)
+- Dedupe window + queue drop policy controls
+- Accessibility controls (`accessibilityLabel`, `announce`, `importance`)
+- Reduced-motion aware animations (`motion: 'system' | 'full' | 'minimal'`)
 - Default position: `top`
 - Default size: `fit-content` (`size: 'fill-width'` also supported)
 - Default duration: `3000ms`
@@ -39,9 +44,27 @@ toast.dismiss(id);
 - `toast.info(message, options?)`
 - `toast.loading(message, options?)`
 - `toast.transition(id, options)`
+- `toast.update(id, options)` (alias for `transition`)
+- `toast.promise(promise, messages, options?)`
+- `toast.configure(config)`
 - `toast.dismiss(id?)`
 - `toast.dismissAll()`
 - `toast.isSupported(): boolean`
+
+### Queue controls
+
+Use `toast.configure` to control queue behavior:
+
+- `maxVisible`: max simultaneously visible toasts per edge
+- `maxQueue`: max pending toasts per edge
+- `dropPolicy`: `'oldest' | 'newest'` when pending queue is full
+
+### Compatibility
+
+- Expo SDK: tested on `54.x`
+- React Native: tested on `0.81.x`
+- iOS runtime: supported on `26+` (native presenter)
+- Android/Web: API is safe no-op, `toast.isSupported()` returns `false`
 
 ## Build module
 
