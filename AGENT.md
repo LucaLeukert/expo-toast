@@ -15,5 +15,6 @@
 ## Workflow Rules
 - Keep changes scoped and pragmatic; prefer native-first behavior for iOS UX details.
 - Run project checks relevant to the change (`bun run lint`, `bun run build`, tests as needed).
+- Keep `/Users/lucaleukert/src/expo-toast/README.md` and `/Users/lucaleukert/src/expo-toast/CHANGELOG.md` in sync with shipped behavior, API signatures, defaults, and platform constraints.
 - **Commits are required before work is considered finished.**
 - Use small, incremental commits with clear messages grouped by feature/fix area.
