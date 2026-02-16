@@ -19,7 +19,7 @@
     "lint:expo": "expo-module lint",
     "format": "biome format . --write",
     "format:check": "biome format .",
-    "test": "expo-module test",
+    "test": "vitest run",
     "test:unit": "vitest run",
     "prepare": "expo-module prepare",
     "prepublishOnly": "expo-module prepublishOnly",
@@ -47,6 +47,7 @@
   "devDependencies": {
     "@biomejs/biome": "^2.4.0",
     "@types/react": "~19.1.0",
+    "eslint": "^9.39.1",
     "expo": "^54.0.33",
     "expo-module-scripts": "^5.0.8",
     "react-native": "0.81.5",

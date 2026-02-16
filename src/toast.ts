@@ -108,18 +108,18 @@ function show(options: ToastOptions): ToastId {
   const id = options.id ?? nextToastId();
   const variant = options.variant ?? 'info';
 
-  callbacks.set(id, {
-    onShow: options.onShow,
-    onDismiss: options.onDismiss,
-    onAction: options.action?.onPress,
-  });
-
   if (!runtimeSupportsToast() || !ExpoToastModule.isSupported()) {
     warnUnsupportedOnce();
     return id;
   }
 
   ensureListeners();
+
+  callbacks.set(id, {
+    onShow: options.onShow,
+    onDismiss: options.onDismiss,
+    onAction: options.action?.onPress,
+  });
 
   ExpoToastModule.show({
     id,
@@ -137,19 +137,19 @@ function show(options: ToastOptions): ToastId {
 }
 
 function transition(id: ToastId, options: ToastTransitionOptions): ToastId {
-  const current = callbacks.get(id) ?? {};
-  callbacks.set(id, {
-    onShow: current.onShow,
-    onDismiss: options.onDismiss ?? current.onDismiss,
-    onAction: options.action === null ? undefined : (options.action?.onPress ?? current.onAction),
-  });
-
   if (!runtimeSupportsToast() || !ExpoToastModule.isSupported()) {
     warnUnsupportedOnce();
     return id;
   }
 
   ensureListeners();
+
+  const current = callbacks.get(id) ?? {};
+  callbacks.set(id, {
+    onShow: current.onShow,
+    onDismiss: options.onDismiss ?? current.onDismiss,
+    onAction: options.action === null ? undefined : (options.action?.onPress ?? current.onAction),
+  });
 
   const actionLabel =
     options.action === undefined

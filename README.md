@@ -7,9 +7,9 @@ Native-feeling liquid-glass toast notifications for Expo with an iOS-native pres
 - iOS 26+ runtime support
 - Imperative API (`toast.show`, `toast.success`, ...)
 - Preset variants: `success | error | info | loading`
-- One visible toast + FIFO queue
+- Up to three visible toasts per edge + FIFO queue
 - Default position: `top`
-- Default size: `fill-width` (`size: 'fit-content'` also supported)
+- Default size: `fit-content` (`size: 'fill-width'` also supported)
 - Default duration: `3000ms`
 - Swipe-up dismiss + one optional action
 - Unsupported platforms: no-op + one dev warning
@@ -38,6 +38,7 @@ toast.dismiss(id);
 - `toast.error(message, options?)`
 - `toast.info(message, options?)`
 - `toast.loading(message, options?)`
+- `toast.transition(id, options)`
 - `toast.dismiss(id?)`
 - `toast.dismissAll()`
 - `toast.isSupported(): boolean`
