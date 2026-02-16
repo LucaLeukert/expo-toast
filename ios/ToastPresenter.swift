@@ -460,7 +460,11 @@ final class ToastPresenter: NSObject {
       durationMs: -1,
       position: position,
       size: .fillWidth,
-      haptics: false
+      haptics: false,
+      accessibilityLabel: nil,
+      announce: false,
+      importance: .low,
+      reducedMotion: true
     )
 
     let indicator: ToastView
